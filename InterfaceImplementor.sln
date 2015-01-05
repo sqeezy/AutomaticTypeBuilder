@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Memmexx.InterfaceImplementor", "Memmexx.InterfaceImplementor\Memmexx.InterfaceImplementor.csproj", "{BD24F5AE-2FD4-4CEF-8592-7A5F0DE090B9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Memmexx.InterfaceImplementor.UnitTests", "Memmexx.InterfaceImplementor.UnitTests\Memmexx.InterfaceImplementor.UnitTests.csproj", "{F3933377-B976-47DC-8378-336F774885C7}"
