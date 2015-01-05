@@ -14,59 +14,119 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-
 using NUnit.Framework;
-
-using Memmexx.InterfaceImplementor;
 
 namespace Memmexx.InterfaceImplementor.UnitTests
 {
     [TestFixture]
     public class UnitTests
     {
-        public interface ITestInterface1 { }
-
-        [Test]
-        public void TestSanity()
+        public interface ITestInterface1
         {
-            ITestInterface1 i = InterfaceObjectFactory.New<ITestInterface1>();
-
-            Assert.IsTrue(i is ITestInterface1, "Wrong interface generated");
-        }
-
-        [Test]
-        [ExpectedException(typeof(InterfaceObjectFactory.TypeIsNotAnInterface))]
-        public void TestErrorOnClass()
-        {
-            UtilFunctions.SendExceptionToConsole(delegate()
-            {
-                InterfaceObjectFactory.New<UnitTests>();
-            });
         }
 
         public interface ITestPrimitiveInterface
         {
-            int Int { get; set;}
-            long Long { get; set;}
-            bool Bool { get;set;}
-            DateTime DateTime { get; set;}
-            string String { get; set;}
+            int Int { get; set; }
+            long Long { get; set; }
+            bool Bool { get; set; }
+            DateTime DateTime { get; set; }
+            string String { get; set; }
+        }
+
+        public interface ITestWithMethodsSimple
+        {
+            void Foo();
+        }
+
+        public interface ITestWithMethodsReturnValuesPrimitive
+        {
+            int Int();
+            long Long();
+            bool Bool();
+            DateTime DateTime();
+            string String();
+        }
+
+        public interface ITestWithMethodsReturnValuesObject
+        {
+            UnitTests UnitTests();
+        }
+
+        public interface ITestWithMethodsArguments
+        {
+            void TestMethod(int i, long l, bool b, DateTime d, UnitTests u);
+        }
+
+        public interface ITestWithOnlyGet
+        {
+            int OnlyGet { get; }
+        }
+
+        public interface ITestWithOnlySet
+        {
+            int OnlySet { set; }
+        }
+
+        public interface ITestWithObjects
+        {
+            ITestWithObjects SubInterface { get; set; }
+            UnitTests SubObject { get; set; }
+        }
+
+        public interface IBaseInterface
+        {
+            int MyInt { get; set; }
+            void BaseMethod();
+        }
+
+        public interface ISuperInterface : IBaseInterface
+        {
+            long MyLong { get; set; }
+            void SuperMethod();
+        }
+
+        public interface IGeneric<T>
+        {
+            T MyT { get; set; }
         }
 
         [Test]
-        public void TestInterfaceWithPrimitivesSanity()
+        [ExpectedException(typeof (InterfaceObjectFactory.TypeIsNotAnInterface))]
+        public void TestErrorOnClass()
         {
-            ITestPrimitiveInterface i = InterfaceObjectFactory.New<ITestPrimitiveInterface>();
+            UtilFunctions.SendExceptionToConsole(delegate { InterfaceObjectFactory.New<UnitTests>(); });
+        }
 
-            Assert.IsTrue(i is ITestPrimitiveInterface, "Wrong interface generated");
+        [Test]
+        public void TestGeneric()
+        {
+            var gInt = InterfaceObjectFactory.New<IGeneric<int>>();
+
+            gInt.MyT = 54;
+
+            Assert.AreEqual(54, gInt.MyT, "Generic integer doesn't work");
+        }
+
+        [Test]
+        public void TestInheritance()
+        {
+            var obj = InterfaceObjectFactory.New<ISuperInterface>();
+
+            obj.BaseMethod();
+            obj.SuperMethod();
+
+            obj.MyInt = 4;
+            obj.MyLong = -333;
+
+            Assert.AreEqual(4, obj.MyInt, "MyInt set incorrectly");
+            Assert.AreEqual(-333, obj.MyLong, "MyLong set incorrectly");
         }
 
         [Test]
         public void TestInterfaceWithPrimitives()
         {
-            ITestPrimitiveInterface i = InterfaceObjectFactory.New<ITestPrimitiveInterface>();
+            var i = InterfaceObjectFactory.New<ITestPrimitiveInterface>();
 
             Assert.IsTrue(i is ITestPrimitiveInterface, "Wrong interface generated");
 
@@ -90,36 +150,75 @@ namespace Memmexx.InterfaceImplementor.UnitTests
 
             Assert.IsTrue(i.Int == int.MaxValue);
             Assert.IsTrue(i.Long == long.MaxValue);
-            Assert.IsTrue(i.Bool == true);
+            Assert.IsTrue(i.Bool);
             Assert.IsTrue(i.DateTime == DateTime.MaxValue);
             Assert.IsTrue(i.String.Equals("This is the highs"));
         }
 
-        public interface ITestWithMethodsSimple
+        [Test]
+        public void TestInterfaceWithPrimitivesSanity()
         {
-            void foo();
+            var i = InterfaceObjectFactory.New<ITestPrimitiveInterface>();
+
+            Assert.IsTrue(i is ITestPrimitiveInterface, "Wrong interface generated");
         }
 
         [Test]
         public void TestMethodsSimple()
         {
-            ITestWithMethodsSimple testWithMethodsSimple = InterfaceObjectFactory.New<ITestWithMethodsSimple>();
-            testWithMethodsSimple.foo();
+            var testWithMethodsSimple = InterfaceObjectFactory.New<ITestWithMethodsSimple>();
+            testWithMethodsSimple.Foo();
         }
 
-        public interface ITestWithMethodsReturnValuesPrimitive
+        [Test]
+        public void TestOnlyGet()
         {
-            int Int();
-            long Long();
-            bool Bool();
-            DateTime DateTime();
-            string String();
+            var testWithOnlyGet = InterfaceObjectFactory.New<ITestWithOnlyGet>();
+
+            Assert.IsTrue(testWithOnlyGet is ITestWithOnlyGet, "Wrong type returned");
+
+            int i = testWithOnlyGet.OnlyGet;
+        }
+
+        [Test]
+        public void TestOnlySet()
+        {
+            var testWithOnlySet = InterfaceObjectFactory.New<ITestWithOnlySet>();
+
+            Assert.IsTrue(testWithOnlySet is ITestWithOnlySet, "Wrong type returned");
+
+            testWithOnlySet.OnlySet = 18;
+        }
+
+        [Test]
+        public void TestSanity()
+        {
+            var i = InterfaceObjectFactory.New<ITestInterface1>();
+
+            Assert.IsTrue(i is ITestInterface1, "Wrong interface generated");
+        }
+
+        [Test]
+        public void TestWithMethodsArguments()
+        {
+            var testWithMethodsArguments = InterfaceObjectFactory.New<ITestWithMethodsArguments>();
+
+            testWithMethodsArguments.TestMethod(1, 2, false, DateTime.Now, this);
+        }
+
+        [Test]
+        public void TestWithMethodsReturnValuesObject()
+        {
+            var testWithMethodsReturnValuesObject = InterfaceObjectFactory.New<ITestWithMethodsReturnValuesObject>();
+
+            testWithMethodsReturnValuesObject.UnitTests();
         }
 
         [Test]
         public void TestWithMethodsReturnValuesPrimitive()
         {
-            ITestWithMethodsReturnValuesPrimitive testWithMethodsReturnValuesPrimitive = InterfaceObjectFactory.New<ITestWithMethodsReturnValuesPrimitive>();
+            var testWithMethodsReturnValuesPrimitive =
+                InterfaceObjectFactory.New<ITestWithMethodsReturnValuesPrimitive>();
 
             testWithMethodsReturnValuesPrimitive.Bool();
             testWithMethodsReturnValuesPrimitive.DateTime();
@@ -128,78 +227,10 @@ namespace Memmexx.InterfaceImplementor.UnitTests
             testWithMethodsReturnValuesPrimitive.String();
         }
 
-        public interface ITestWithMethodsReturnValuesObject
-        {
-            UnitTests UnitTests();
-        }
-
-        [Test]
-        public void TestWithMethodsReturnValuesObject()
-        {
-            ITestWithMethodsReturnValuesObject testWithMethodsReturnValuesObject = InterfaceObjectFactory.New<ITestWithMethodsReturnValuesObject>();
-
-            testWithMethodsReturnValuesObject.UnitTests();
-        }
-
-        public interface ITestWithMethodsArguments
-        {
-            void TestMethod(int i, long l, bool b, DateTime d, UnitTests u);
-        }
-
-        [Test]
-        public void TestWithMethodsArguments()
-        {
-            ITestWithMethodsArguments testWithMethodsArguments = InterfaceObjectFactory.New<ITestWithMethodsArguments>();
-
-            testWithMethodsArguments.TestMethod(1, 2, false, DateTime.Now, this);
-        }
-
-        public interface ITestWithOnlyGet
-        {
-            int OnlyGet { get;}
-        }
-
-        [Test]
-        public void TestOnlyGet()
-        {
-            ITestWithOnlyGet testWithOnlyGet = InterfaceObjectFactory.New<ITestWithOnlyGet>();
-
-            Assert.IsTrue(testWithOnlyGet is ITestWithOnlyGet, "Wrong type returned");
-
-            int i = testWithOnlyGet.OnlyGet;
-        }
-
-        public interface ITestWithOnlySet
-        {
-            int OnlySet { set;}
-        }
-
-        [Test]
-        public void TestOnlySet()
-        {
-            ITestWithOnlySet testWithOnlySet = InterfaceObjectFactory.New<ITestWithOnlySet>();
-
-            Assert.IsTrue(testWithOnlySet is ITestWithOnlySet, "Wrong type returned");
-
-            testWithOnlySet.OnlySet = 18;
-        }
-
-        public interface ITestWithObjects
-        {
-            ITestWithObjects SubInterface { get;set;}
-            UnitTests SubObject { get;set;}
-        }
-
-        [Test]
-        public void TestWithObjectsSanity()
-        {
-            ITestWithObjects obj = InterfaceObjectFactory.New<ITestWithObjects>();
-        }
-
         [Test]
         public void TestWithObjects()
         {
-            ITestWithObjects obj = InterfaceObjectFactory.New<ITestWithObjects>();
+            var obj = InterfaceObjectFactory.New<ITestWithObjects>();
 
             obj.SubInterface = obj;
             obj.SubObject = this;
@@ -208,46 +239,10 @@ namespace Memmexx.InterfaceImplementor.UnitTests
             Assert.IsTrue(obj.SubObject == this);
         }
 
-        public interface IBaseInterface
-        {
-            int MyInt { get;set;}
-            void BaseMethod();
-        }
-
-        public interface ISuperInterface : IBaseInterface
-        {
-            long MyLong {get;set;}
-            void SuperMethod();
-        }
-
         [Test]
-        public void TestInheritance()
+        public void TestWithObjectsSanity()
         {
-            ISuperInterface obj = InterfaceObjectFactory.New<ISuperInterface>();
-
-            obj.BaseMethod();
-            obj.SuperMethod();
-
-            obj.MyInt = 4;
-            obj.MyLong = -333;
-
-            Assert.AreEqual(4, obj.MyInt, "MyInt set incorrectly");
-            Assert.AreEqual(-333, obj.MyLong, "MyLong set incorrectly");
-        }
-
-        public interface IGeneric<T>
-        {
-            T MyT { get; set;}
-        }
-
-        [Test]
-        public void TestGeneric()
-        {
-            IGeneric<int> gInt = InterfaceObjectFactory.New<IGeneric<int>>();
-
-            gInt.MyT = 54;
-
-            Assert.AreEqual(54, gInt.MyT, "Generic integer doesn't work");
+            var obj = InterfaceObjectFactory.New<ITestWithObjects>();
         }
     }
 }

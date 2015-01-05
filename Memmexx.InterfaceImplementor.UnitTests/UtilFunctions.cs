@@ -14,14 +14,12 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Memmexx.InterfaceImplementor.UnitTests
 {
     public delegate void MyDelegate();
 
-    static class UtilFunctions
+    internal static class UtilFunctions
     {
         public static void SendExceptionToConsole(MyDelegate del)
         {
