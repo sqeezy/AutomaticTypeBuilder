@@ -79,6 +79,19 @@ namespace Memmexx.InterfaceImplementor
             return (T) Activator.CreateInstance(InterfaceImplementations[type]);
         }
 
+        public static object CreateInterfaceImplementation(Type type)
+        {
+            // If the type that implements the isn't created, create it
+            if (!InterfaceImplementations.ContainsKey(type))
+            {
+                CreateTypeFor(type);
+            }
+
+            // Now that the type exists to implement the interface, use the Activator to create an 
+            // object
+            return Activator.CreateInstance(InterfaceImplementations[type]);
+        }
+
         /// <summary>
         ///     Creates a method that will generate an object that implements the interface for the
         ///     given type.
